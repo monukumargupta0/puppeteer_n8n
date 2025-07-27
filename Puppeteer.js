@@ -5,11 +5,12 @@ puppeteer.use(StealthPlugin());
 
 const sleep = (ms) => new Promise((res) => setTimeout(res, ms));
 
-const pinCodes = ['400001', '835222', '201301', '560001', '600001'];
+// Read pin codes from JSON file
+const pinCodes = JSON.parse(fs.readFileSync('pincodes.json')).pincodes;
 
 (async () => {
   const browser = await puppeteer.launch({
-    headless: true, // must be true for deployment
+    headless: true,
     args: [
       '--no-sandbox',
       '--disable-setuid-sandbox',
