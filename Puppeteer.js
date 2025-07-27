@@ -54,9 +54,6 @@ const pinCodes = JSON.parse(fs.readFileSync('pincodes.json')).pincodes;
         await sleep(5000);
       }
 
-      console.log(`📸 Taking screenshot for ${pincode}...`);
-      await page.screenshot({ path: `screenshot_${pincode}.png`, fullPage: true });
-
       console.log(`💾 Saving HTML for ${pincode}...`);
       const html = await page.content();
       fs.writeFileSync(`amazon_${pincode}.html`, html, 'utf-8');
@@ -65,7 +62,6 @@ const pinCodes = JSON.parse(fs.readFileSync('pincodes.json')).pincodes;
       await sleep(4000);
     } catch (error) {
       console.warn(`⚠️ Error for pincode ${pincode}:`, error.message);
-      await page.screenshot({ path: `error_${pincode}.png`, fullPage: true });
     }
   }
 
