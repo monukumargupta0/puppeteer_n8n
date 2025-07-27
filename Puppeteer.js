@@ -5,27 +5,26 @@ puppeteer.use(StealthPlugin());
 
 const sleep = (ms) => new Promise((res) => setTimeout(res, ms));
 
-// List of pin codes to loop through
-const pinCodes = ['400001', '835222','201301', '560001','600001'];
+const pinCodes = ['400001', '835222', '201301', '560001', '600001'];
 
 (async () => {
   const browser = await puppeteer.launch({
-    headless: false,
-    defaultViewport: null,
+    headless: true, // must be true for deployment
     args: [
-      '--start-maximized',
       '--no-sandbox',
       '--disable-setuid-sandbox',
-      '--disable-blink-features=AutomationControlled'
+      '--disable-blink-features=AutomationControlled',
+      '--disable-dev-shm-usage',
+      '--disable-gpu',
+      '--single-process',
+      '--no-zygote'
     ],
   });
 
   const page = await browser.newPage();
   await page.setUserAgent('Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/114.0.0.0 Safari/537.36');
 
-  for (let i = 0; i < pinCodes.length; i++) {
-    const pincode = pinCodes[i];
-
+  for (let pincode of pinCodes) {
     try {
       console.log(`🌐 Navigating to Amazon for pincode ${pincode}...`);
       await page.goto('https://www.amazon.in/s?k=neuherbs', {
@@ -38,7 +37,7 @@ const pinCodes = ['400001', '835222','201301', '560001','600001'];
       await page.click('#nav-global-location-popover-link');
       await sleep(5000);
 
-      console.log("⌛ Waiting for pincode input...");
+      console.log("⌛ Entering pincode...");
       await page.waitForSelector('#GLUXZipUpdateInput', { timeout: 15000 });
       await page.evaluate(() => document.querySelector('#GLUXZipUpdateInput').value = '');
       await page.type('#GLUXZipUpdateInput', pincode, { delay: 100 });
@@ -63,7 +62,6 @@ const pinCodes = ['400001', '835222','201301', '560001','600001'];
 
       console.log(`✅ Done for ${pincode} ✅`);
       await sleep(4000);
-
     } catch (error) {
       console.warn(`⚠️ Error for pincode ${pincode}:`, error.message);
       await page.screenshot({ path: `error_${pincode}.png`, fullPage: true });
